@@ -53,3 +53,23 @@ export default {
   }
 };
 </script>
+
+<style>
+html, body {
+    margin: 5px;
+    padding: 0;
+}
+h1 {
+    color: rgb(204, 48, 48);
+}
+
+.lists {
+    width: 400px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.completedList {
+    text-decoration: line-through;
+}
+</style>
