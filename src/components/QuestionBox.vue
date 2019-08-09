@@ -1,26 +1,27 @@
 <template>
   <div id="buttonCounter">
-    <button @click="counter++">Click me: {{ counter }}</button>
     <h1 :style="myStyle">hello, world!</h1>
     <input type="text" v-model="message" @keyup.enter="inputTextButton" />
-    <p>{{ message }}</p>
-
     <button type="text" @click="inputTextButton">+ ADD</button>
     <button type="text" @click="showGroceryList">show/hide</button>
     <br />
     <br />
     <div v-show="show" class="lists" :key="index" v-for="(item, index) in groceryList">
-      <div class="text-block">
-        <span :class="{completedList:isActive}" @click="completed(index)">{{item.text}}</span>
-        <br />
-        <!-- <input type="text" v-model="valueMessage" @keyup.enter="inputTextButton" /> -->
-      </div>
+      <input
+        :class="{completedList:item.completedToDo}"
+        class="inputShow"
+        type="text"
+        v-model=" item.text "
+        @keyup.enter="inputTextButton"
+        :readonly="item.readOnly"
+        @click="completed(index)"
+      />
       <div>
         <button type="text" @click="removeList(index)">delete</button>
-        <button @click="renameList(index)">{{ changesButtonName }}</button>
+        <button @click="renameList(index)">{{ item.changesButtonName }}</button>
       </div>
     </div>
-    <p v-on:mousemove="updateCoordinates">Coordinates: {{ x }} / {{ y }}</p>
+    <hr />
   </div>
 </template>
 
@@ -31,20 +32,36 @@ export default {
   data() {
     return {
       groceryList: [
-        { id: 1, text: "Vegetables" },
-        { id: 2, text: "Cheese" },
-        { id: 3, text: "Whatever else humans are supposed to eat" }
+        {
+          id: 1,
+          text: "Vegetables",
+          readOnly: true,
+          completedToDo: false,
+          changesButtonName: "rename"
+        },
+        {
+          id: 2,
+          text: "Cheese",
+          readOnly: true,
+          completedToDo: false,
+          changesButtonName: "rename"
+        },
+        {
+          id: 3,
+          text: "Whatever else humans are supposed to eat",
+          readOnly: true,
+          completedToDo: false,
+          changesButtonName: "rename"
+        }
       ],
       counter: 4,
       message: "",
       valueMessage: "",
-      showButton: true,
+      readonlyInput: true,
       show: true,
       isActive: false,
       changesButtonName: "rename",
       checkButton: true,
-      x: 0,
-      y: 0
     };
   },
 
@@ -63,28 +80,30 @@ export default {
       };
     }
   },
-
   methods: {
     showGroceryList() {
       this.show = !this.show;
     },
 
-    updateCoordinates() {
-      this.x = event.clientX;
-      this.y = event.clientY;
-    },
-
     inputTextButton() {
       this.groceryList.push({
         text: this.message,
-        id: this.counter
+        id: this.counter,
+        readOnly: true,
+        completedToDo: false
       }),
         this.counter++,
         (this.message = "");
     },
-
     completed(index) {
-      console.log("checked", index, this.isActive);
+      console.log("checked", this.groceryList[index]);
+      if (this.checkButton === true) {
+        if (this.groceryList[index].completedToDo === false) {
+          this.groceryList[index].completedToDo = true;
+        } else if (this.groceryList[index].completedToDo === true) {
+          this.groceryList[index].completedToDo = false;
+        }
+      }
     },
 
     removeList(index) {
@@ -93,20 +112,18 @@ export default {
 
     renameList(index) {
       if (this.checkButton === true) {
-        this.message = this.groceryList[index].text;
         this.checkButton = !this.checkButton;
-        this.changesButtonName = 'save';
-      } else if(this.checkButton === false) {
-        this.groceryList[index].text = this.message;
+        this.groceryList[index].readOnly = false;
+        this.groceryList[index].completedToDo;
+        this.groceryList[index].changesButtonName = "save";
+        console.log(this.groceryList[index]);
+      } else if (this.checkButton === false) {
+        this.groceryList[index].readOnly = true;
         this.checkButton = !this.checkButton;
-        this.changesButtonName = 'rename';
+        this.groceryList[index].changesButtonName = "rename";
+        console.log(this.groceryList[index]);
       }
     }
-
-    // saveList(index) {
-
-    //   console.log("save", index);
-    // }
   }
 };
 </script>
@@ -122,12 +139,16 @@ body {
 h1 {
   color: rgb(204, 48, 48);
 }
-
+.inputShow {
+  border: none;
+  width: 70%;
+}
 .text-block {
   text-align: left;
 }
 .lists {
   width: 90%;
+  max-width: 670px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
